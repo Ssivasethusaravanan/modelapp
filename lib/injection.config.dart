@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -34,8 +35,12 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
+    final storageModule = _$StorageModule();
     final networkModule = _$NetworkModule();
-    gh.singleton<_i682.TokenStorage>(() => _i682.TokenStorage());
+    gh.lazySingleton<_i558.FlutterSecureStorage>(
+        () => storageModule.secureStorage);
+    gh.singleton<_i682.TokenStorage>(
+        () => _i682.TokenStorage(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i729.AuthInterceptor>(
         () => _i729.AuthInterceptor(gh<_i682.TokenStorage>()));
     gh.lazySingleton<_i361.Dio>(
@@ -55,5 +60,7 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$StorageModule extends _i871.StorageModule {}
 
 class _$NetworkModule extends _i871.NetworkModule {}

@@ -69,6 +69,18 @@ void main() {
 
       expect(result, const Left<String, RegisterResponse>('Error message'));
     });
+
+    test('should return Left(error.toString()) when generic exception occurs', () async {
+      when(() => mockDatasource.register(any())).thenThrow(Exception('Generic error'));
+
+      final result = await repository.register(
+        email: tEmail,
+        password: tPassword,
+        name: tName,
+      );
+
+      expect(result, const Left<String, RegisterResponse>('Exception: Generic error'));
+    });
   });
 
   group('login', () {
@@ -91,6 +103,31 @@ void main() {
       expect(result, const Right<String, LoginResponse>(tLoginResponse));
       verify(() => mockDatasource.login(tLoginRequest)).called(1);
     });
+
+    test('should return Left(message) when datasource throws DioException', () async {
+      when(() => mockDatasource.login(any())).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: ''),
+          response: Response(
+            requestOptions: RequestOptions(path: ''),
+            data: {'message': 'Login failed'},
+            statusCode: 401,
+          ),
+        ),
+      );
+
+      final result = await repository.login(email: tEmail, password: tPassword);
+
+      expect(result, const Left<String, LoginResponse>('Login failed'));
+    });
+
+    test('should return Left(error.toString()) when generic exception occurs', () async {
+      when(() => mockDatasource.login(any())).thenThrow(Exception('Generic error'));
+
+      final result = await repository.login(email: tEmail, password: tPassword);
+
+      expect(result, const Left<String, LoginResponse>('Exception: Generic error'));
+    });
   });
 
   group('getUserHome', () {
@@ -102,8 +139,33 @@ void main() {
 
       final result = await repository.getUserHome();
 
-      expect(result, const Right<String, UserData>(tUserData));
+      expect(result, const Right<String, HomeResponse>(tHomeResponse));
       verify(() => mockDatasource.getHome()).called(1);
+    });
+
+    test('should return Left(message) when datasource throws DioException', () async {
+      when(() => mockDatasource.getHome()).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: ''),
+          response: Response(
+            requestOptions: RequestOptions(path: ''),
+            data: {'message': 'Fetch failed'},
+            statusCode: 500,
+          ),
+        ),
+      );
+
+      final result = await repository.getUserHome();
+
+      expect(result, const Left<String, HomeResponse>('Fetch failed'));
+    });
+
+    test('should return Left(error.toString()) when generic exception occurs', () async {
+      when(() => mockDatasource.getHome()).thenThrow(Exception('Generic error'));
+
+      final result = await repository.getUserHome();
+
+      expect(result, const Left<String, HomeResponse>('Exception: Generic error'));
     });
   });
 }

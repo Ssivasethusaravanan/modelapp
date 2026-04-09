@@ -3,10 +3,9 @@ import 'package:injectable/injectable.dart';
 
 @singleton
 class TokenStorage {
-  static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  TokenStorage(this._storage);
+
+  final FlutterSecureStorage _storage;
 
   static const _tokenKey = 'auth_token';
   static const _userKey = 'user_data';

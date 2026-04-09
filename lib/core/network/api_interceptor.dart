@@ -8,7 +8,7 @@ class AuthInterceptor extends Interceptor {
   final TokenStorage _tokenStorage;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final token = await _tokenStorage.getToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -18,7 +18,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       // Clear token and potentially redirect to login
       await _tokenStorage.clearAll();

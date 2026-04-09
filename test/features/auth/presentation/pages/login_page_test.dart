@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:team_management_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:team_management_app/features/auth/presentation/pages/login_page.dart';
 import 'package:team_management_app/features/auth/data/models/auth_models.dart';
@@ -10,9 +12,11 @@ import 'package:team_management_app/injection.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
 class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
+class MockGoRouter extends Mock implements GoRouter {}
 
 void main() {
   late MockAuthBloc mockAuthBloc;
+  late MockGoRouter mockGoRouter;
 
   setUpAll(() {
     // Basic injectable setup if needed, but we often mock getIt in widget tests
@@ -22,14 +26,21 @@ void main() {
 
   setUp(() {
     mockAuthBloc = MockAuthBloc();
+    mockGoRouter = MockGoRouter();
     // Register the mock with getIt
     getIt.reset();
     getIt.registerFactory<AuthBloc>(() => mockAuthBloc);
   });
 
   Widget createWidgetUnderTest() {
-    return const MaterialApp(
-      home: LoginPage(),
+    return MaterialApp(
+      home: BlocProvider<AuthBloc>(
+        create: (context) => mockAuthBloc,
+        child: InheritedProvider<GoRouter>.value(
+          value: mockGoRouter,
+          child: const LoginPage(),
+        ),
+      ),
     );
   }
 
@@ -46,9 +57,14 @@ void main() {
   testWidgets('shows loading indicator when state is AuthLoading', (WidgetTester tester) async {
     when(() => mockAuthBloc.state).thenReturn(AuthLoading());
     await tester.pumpWidget(createWidgetUnderTest());
+    // Use a fixed duration pump instead of pumpAndSettle to avoid timeout from infinite spinner
+    await tester.pump(const Duration(seconds: 1));
     
     // We expect a CircularProgressIndicator instead of the LOGIN text in the button
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    
+    // Wait for animations to finish before disposal
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets('emits LoginRequested when login button is pressed', (WidgetTester tester) async {
@@ -59,7 +75,9 @@ void main() {
     await tester.enterText(find.byType(TextField).at(0), 'test@example.com');
     await tester.enterText(find.byType(TextField).at(1), 'password123');
     
-    await tester.tap(find.text('LOGIN'));
+    final loginButton = find.text('LOGIN');
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pump();
 
     verify(() => mockAuthBloc.add(LoginRequested('test@example.com', 'password123'))).called(1);
@@ -72,8 +90,12 @@ void main() {
 
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(); // Trigger listener
+    await tester.pump(); // Show snackbar
 
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Invalid credentials'), findsOneWidget);
+
+    // Wait for snackbar and animations to finish
+    await tester.pumpAndSettle();
   });
 }

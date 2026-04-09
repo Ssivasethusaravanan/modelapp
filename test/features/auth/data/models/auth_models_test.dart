@@ -12,7 +12,18 @@ void main() {
       final json = request.toJson();
       expect(json['email'], 'test@example.com');
       expect(json['password'], 'password123');
-      expect(json['name'], 'test@example.com'); // Opps, error in implementation found!
+      expect(json['name'], 'Test User');
+    });
+
+    test('fromJson returns correct object', () {
+      final json = {
+        'email': 'test@example.com',
+        'password': 'password123',
+        'name': 'Test User'
+      };
+      final request = RegisterRequest.fromJson(json);
+      expect(request.email, 'test@example.com');
+      expect(request.name, 'Test User');
     });
   });
 
@@ -31,6 +42,13 @@ void main() {
       final json = request.toJson();
       expect(json['email'], 'test@example.com');
       expect(json['password'], 'password123');
+    });
+
+    test('fromJson returns correct object', () {
+      final json = {'email': 'test@example.com', 'password': 'password123'};
+      final request = LoginRequest.fromJson(json);
+      expect(request.email, 'test@example.com');
+      expect(request.password, 'password123');
     });
   });
 
