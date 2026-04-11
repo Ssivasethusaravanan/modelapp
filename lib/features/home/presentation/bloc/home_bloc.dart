@@ -1,5 +1,5 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:team_management_app/features/auth/data/models/auth_models.dart';
 import 'package:team_management_app/features/auth/domain/repositories/auth_repository.dart';
@@ -19,13 +19,16 @@ abstract class HomeState extends Equatable {
 }
 
 class HomeInitial extends HomeState {}
+
 class HomeLoading extends HomeState {}
+
 class HomeLoaded extends HomeState {
   HomeLoaded(this.homeData);
   final HomeResponse homeData;
   @override
   List<Object?> get props => [homeData];
 }
+
 class HomeError extends HomeState {
   HomeError(this.message);
   final String message;
@@ -42,7 +45,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   final AuthRepository _repository;
 
-  Future<void> _onGetHomeData(GetHomeDataRequested event, Emitter<HomeState> emit) async {
+  Future<void> _onGetHomeData(
+      GetHomeDataRequested event, Emitter<HomeState> emit) async {
     emit(HomeLoading());
     final result = await _repository.getUserHome();
     result.fold(

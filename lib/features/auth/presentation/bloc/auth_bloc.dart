@@ -1,9 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:team_management_app/core/storage/secure_storage.dart';
 import 'package:team_management_app/features/auth/data/models/auth_models.dart';
 import 'package:team_management_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:team_management_app/core/storage/secure_storage.dart';
 
 // --- Events ---
 abstract class AuthEvent extends Equatable {
@@ -37,14 +37,18 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
+
 class AuthLoading extends AuthState {}
+
 class AuthAuthenticated extends AuthState {
   AuthAuthenticated(this.user);
   final UserData user;
   @override
   List<Object?> get props => [user];
 }
+
 class AuthUnauthenticated extends AuthState {}
+
 class AuthError extends AuthState {
   AuthError(this.message);
   final String message;
@@ -66,7 +70,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final result = await _repository.login(email: event.email, password: event.password);
+    final result =
+        await _repository.login(email: event.email, password: event.password);
     await result.fold(
       (error) async => emit(AuthError(error)),
       (response) async {
@@ -76,7 +81,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onRegister(RegisterRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onRegister(
+      RegisterRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await _repository.register(
       email: event.email,

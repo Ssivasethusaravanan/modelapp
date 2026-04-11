@@ -12,7 +12,7 @@ void main() {
   late HomeBloc homeBloc;
   late MockAuthRepository mockAuthRepository;
 
-  final tUser = UserData(
+  const tUser = UserData(
     id: '1',
     email: 'test@test.com',
     name: 'Test User',

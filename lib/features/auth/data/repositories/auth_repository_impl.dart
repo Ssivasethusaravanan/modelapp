@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:team_management_app/features/auth/data/models/auth_models.dart';
 import 'package:team_management_app/features/auth/data/datasources/auth_datasource.dart';
+import 'package:team_management_app/features/auth/data/models/auth_models.dart';
 import 'package:team_management_app/features/auth/domain/repositories/auth_repository.dart';
 
 @Injectable(as: AuthRepository)
@@ -22,7 +22,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(response);
     } on DioException catch (e) {
-      return Left(e.response?.data?['message'] as String? ?? 'Registration failed');
+      return Left(
+          e.response?.data?['message'] as String? ?? 'Registration failed');
     } catch (e) {
       return Left(e.toString());
     }
@@ -51,7 +52,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _datasource.getHome();
       return Right(response);
     } on DioException catch (e) {
-      return Left(e.response?.data?['message'] as String? ?? 'Failed to fetch details');
+      return Left(
+          e.response?.data?['message'] as String? ?? 'Failed to fetch details');
     } catch (e) {
       return Left(e.toString());
     }
