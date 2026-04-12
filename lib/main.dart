@@ -4,7 +4,7 @@ import 'package:team_management_app/app.dart';
 import 'package:team_management_app/core/bloc/app_bloc_observer.dart';
 import 'package:team_management_app/injection.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
   Bloc.observer = AppBlocObserver();
